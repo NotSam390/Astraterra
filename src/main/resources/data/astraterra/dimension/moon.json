@@ -1,0 +1,15 @@
+{
+  "type": "astraterra:moon",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "astraterra:moon",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "astraterra:moon"
+    },
+    "structure_overrides": [
+      "astraterra:moon_craters_small",
+      "astraterra:moon_craters_big"
+    ]
+  }
+}
