@@ -24,11 +24,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.slf4j.Logger;
-
 import java.util.Random;
-
 import static com.mojang.blaze3d.systems.RenderSystem.setShaderFogStart;
-
 /**
  * Draws the moon's entire sky by hand: stars, sun, and a fixed, tidally-locked
  * Earth with a slow phase cycle. Only runs while actually in the moon
@@ -203,10 +200,6 @@ public class MoonSkyRenderer {
         Vector3f sunDir = new Vector3f((float) Math.cos(sunAngleRad), (float) Math.sin(sunAngleRad), 0.0F);
 
         if (sunDir.y() <= -0.05F) {
-            return;
-        }
-
-        if (sunDir.y() <= -0.05F) {
             return; // below the horizon for this part of the cycle — don't draw
         }
 
@@ -352,7 +345,7 @@ public class MoonSkyRenderer {
     }
 
     private static void addPhaseVertex(BufferBuilder builder, Matrix4f pose, Vector4f worldPos,
-                                       Vector3f right, Vector3f up, float radius, float u, float v, float alpha) {
+                                       Vector3f gright, Vector3f up, float radius, float u, float v, float alpha) {
         float ox = (right.x() * u + up.x() * v) * radius;
         float oy = (right.y() * u + up.y() * v) * radius;
         float oz = (right.z() * u + up.z() * v) * radius;
