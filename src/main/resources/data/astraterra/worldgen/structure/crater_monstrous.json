@@ -1,0 +1,12 @@
+{
+  "type": "astraterra:crater",
+  "biomes": "astraterra:moon",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "min_radius": 85,
+  "max_radius": 120,
+  "min_depth": 45,
+  "max_depth": 65,
+  "min_rim_height": 10,
+  "max_rim_height": 14
+}

@@ -1,0 +1,18 @@
+{
+  "structures": [
+    {"structure": "astraterra:crater_small", "weight": 40},
+    {"structure": "astraterra:crater_medium", "weight": 30},
+    {"structure": "astraterra:crater_large", "weight": 20}
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 8,
+    "separation": 2,
+    "salt": 917234,
+    "spread_type": "triangular",
+    "exclusion_zone": {
+      "other_set": "astraterra:moon_craters_big",
+      "chunk_count": 8
+    }
+  }
+}
