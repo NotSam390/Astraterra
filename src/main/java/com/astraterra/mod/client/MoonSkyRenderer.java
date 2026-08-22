@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,9 +24,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.slf4j.Logger;
-
 import java.util.Random;
-
+import static com.mojang.blaze3d.systems.RenderSystem.setShaderFogStart;
 /**
  * Draws the moon's entire sky by hand: stars, sun, and a fixed, tidally-locked
  * Earth with a slow phase cycle. Only runs while actually in the moon
@@ -42,7 +42,7 @@ public class MoonSkyRenderer {
     // 27 Minecraft days at 24000 ticks/day — matches the moon's real rotation
     // period, used for both the sun's rise/set cycle and the star field's slow
     // spin. Earth's phase is tied to the same cycle for simplicity.
-    private static final double CYCLE_TICKS = 27.0 * 24000.0;
+    private static final double CYCLE_TICKS = 24000.0;
 
     private static final int STAR_COUNT = 4500; // ~3x vanilla's 1500
     private static final float SKY_DISTANCE = 100.0F;
@@ -50,8 +50,16 @@ public class MoonSkyRenderer {
     // Earth's fixed sky direction — tidally locked, does not move as the
     // player looks around or as time passes. Roughly "high in the north".
     private static final Vector3f EARTH_DIRECTION = new Vector3f(-0.35F, 0.55F, -0.75F).normalize();
-    private static final float EARTH_ANGULAR_RADIUS_DEG = 1.0F; // ~2 degree apparent diameter
-    private static final float SUN_ANGULAR_RADIUS_DEG = 0.25F;  // ~0.5 degree apparent diameter
+    private static final float EARTH_ANGULAR_RADIUS_DEG = 1.0F;
+    private static final float SUN_ANGULAR_RADIUS_DEG = 0.25F;
+
+    // add near the other constants
+    public static boolean isNight(long gameTime, float partialTick) {
+        double cycleProgress = ((gameTime + partialTick) % CYCLE_TICKS) / CYCLE_TICKS;
+        float sunAngleDeg = (float) (cycleProgress * 360.0) - 90.0F;
+        float sunHeight = (float) Math.sin(Math.toRadians(sunAngleDeg));
+        return sunHeight <= -0.05F;
+    }
 
     private static VertexBuffer starBuffer;
 
@@ -80,10 +88,19 @@ public class MoonSkyRenderer {
             return;
         }
 
+        // Sky objects sit 100 blocks out. If any fog is active this frame
+        // (e.g. MoonDarknessFogHandler's close-in night fog), it'll swallow
+        // them just like it swallows terrain — vanilla always disables fog
+        // before its own sky pass for this exact reason.
+        float prevFogStart = RenderSystem.getShaderFogStart();
+        float prevFogEnd = RenderSystem.getShaderFogEnd();
+        RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+        RenderSystem.setShaderFogEnd(Float.MAX_VALUE);
+
         PoseStack poseStack = event.getPoseStack();
         Matrix4f projectionMatrix = event.getProjectionMatrix();
         float partialTick = event.getPartialTick();
-        double cycleProgress = ((level.getGameTime() + partialTick) % CYCLE_TICKS) / CYCLE_TICKS; // 0..1
+        double cycleProgress = ((level.getGameTime() + partialTick) % CYCLE_TICKS) / CYCLE_TICKS;
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -97,6 +114,9 @@ public class MoonSkyRenderer {
         RenderSystem.enableCull();
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
+
+        setShaderFogStart(prevFogStart);
+        RenderSystem.setShaderFogEnd(prevFogEnd);
     }
 
     // ------------------------------------------------------------------
@@ -104,17 +124,22 @@ public class MoonSkyRenderer {
     // ------------------------------------------------------------------
 
     private static void renderStars(PoseStack poseStack, Matrix4f projectionMatrix, double cycleProgress) {
+        float sunAngleDeg = (float) (cycleProgress * 360.0) - 90.0F;
+        float sunHeight = (float) Math.sin(Math.toRadians(sunAngleDeg));
+
+        // Fully hidden in bright day, fully visible at night, fading through twilight.
+        float starAlpha = 1.0F - Mth.clamp((sunHeight + 0.05F) / 0.3F, 0.0F, 1.0F);
+        if (starAlpha <= 0.0F) return;
+
         if (starBuffer == null) {
             starBuffer = buildStarBuffer();
         }
 
         poseStack.pushPose();
-        // Slow rotation over the full 27-day cycle — independent of the
-        // sun's own position so the field visibly turns over that period.
         poseStack.mulPose(new Quaternionf().rotateY((float) (cycleProgress * Math.PI * 2.0)));
 
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader); // was getPositionShader
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, starAlpha);
         starBuffer.bind();
         starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
         VertexBuffer.unbind();
@@ -170,15 +195,9 @@ public class MoonSkyRenderer {
     // ------------------------------------------------------------------
 
     private static void renderSun(PoseStack poseStack, double cycleProgress) {
-        // Rise/set over the full 27-day cycle, rotating around the same axis
-        // vanilla uses for its own sun so "up" behaves the way you'd expect.
         float sunAngleDeg = (float) (cycleProgress * 360.0) - 90.0F;
         float sunAngleRad = (float) Math.toRadians(sunAngleDeg);
-        Vector3f sunDir = new Vector3f(
-                (float) Math.cos(sunAngleRad),
-                (float) Math.sin(sunAngleRad),
-                0.0F
-        );
+        Vector3f sunDir = new Vector3f((float) Math.cos(sunAngleRad), (float) Math.sin(sunAngleRad), 0.0F);
 
         if (sunDir.y() <= -0.05F) {
             return; // below the horizon for this part of the cycle — don't draw
@@ -326,7 +345,7 @@ public class MoonSkyRenderer {
     }
 
     private static void addPhaseVertex(BufferBuilder builder, Matrix4f pose, Vector4f worldPos,
-                                       Vector3f right, Vector3f up, float radius, float u, float v, float alpha) {
+                                       Vector3f gright, Vector3f up, float radius, float u, float v, float alpha) {
         float ox = (right.x() * u + up.x() * v) * radius;
         float oy = (right.y() * u + up.y() * v) * radius;
         float oz = (right.z() * u + up.z() * v) * radius;
