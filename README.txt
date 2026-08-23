@@ -2,7 +2,7 @@
 
 Minecraft mod. Adds a custom space system for Forge 1.20.1 — its own dimensions, sky rendering, and lighting, built from scratch rather than extending Ad Astra or similar mods.
 
-Early in development. Currently the Moon is the only dimension.
+Early in development. Currently, the Moon is the only dimension.
 
 ## Building
 
