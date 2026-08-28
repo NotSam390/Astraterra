@@ -32,6 +32,12 @@ import static com.mojang.blaze3d.systems.RenderSystem.setShaderFogStart;
  * dimension (MoonDimensionEffects disables vanilla's own sky rendering there,
  * so this is the only thing painting anything above the horizon).
  */
+// Source - https://stackoverflow.com/a/64727051
+// Posted by YourHelper, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-08-24, License - CC BY-SA 4.0
+
+@SuppressWarnings({"deprecation", "removal"})
+
 @Mod.EventBusSubscriber(modid = Astraterra.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class MoonSkyRenderer {
 
@@ -42,7 +48,7 @@ public class MoonSkyRenderer {
     // 27 Minecraft days at 24000 ticks/day — matches the moon's real rotation
     // period, used for both the sun's rise/set cycle and the star field's slow
     // spin. Earth's phase is tied to the same cycle for simplicity.
-    private static final double CYCLE_TICKS = 24000.0;
+    private static final double CYCLE_TICKS = 1200.0;
 
     private static final int STAR_COUNT = 4500; // ~3x vanilla's 1500
     private static final float SKY_DISTANCE = 100.0F;
@@ -50,8 +56,8 @@ public class MoonSkyRenderer {
     // Earth's fixed sky direction — tidally locked, does not move as the
     // player looks around or as time passes. Roughly "high in the north".
     private static final Vector3f EARTH_DIRECTION = new Vector3f(-0.35F, 0.55F, -0.75F).normalize();
-    private static final float EARTH_ANGULAR_RADIUS_DEG = 1.0F;
-    private static final float SUN_ANGULAR_RADIUS_DEG = 0.25F;
+    private static final float EARTH_ANGULAR_RADIUS_DEG = 20.0F;
+    private static final float SUN_ANGULAR_RADIUS_DEG = 2.0F;
 
     // add near the other constants
     public static boolean isNight(long gameTime, float partialTick) {
@@ -101,6 +107,13 @@ public class MoonSkyRenderer {
         Matrix4f projectionMatrix = event.getProjectionMatrix();
         float partialTick = event.getPartialTick();
         double cycleProgress = ((level.getGameTime() + partialTick) % CYCLE_TICKS) / CYCLE_TICKS;
+
+        if (debugLogCounter % 20 == 0) { // ~once/sec at 20 fps-ish
+            float sunAngleDeg = (float) (cycleProgress * 360.0) - 90.0F;
+            float sunHeight = (float) Math.sin(Math.toRadians(sunAngleDeg));
+            LOGGER.info("[ASTRATERRA_SUN] gameTime={} cycleProgress={} sunHeight={} shouldDraw={}",
+                    level.getGameTime(), cycleProgress, sunHeight, sunHeight > -0.05F);
+        }
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -237,7 +250,7 @@ public class MoonSkyRenderer {
         // Phase shadow: a dark lune shape whose width tracks the same cycle
         // as the sun. 0.5 = full Earth (no shadow), 0.0/1.0 = new Earth
         // (fully shadowed).
-        float phaseCos = (float) Math.cos(cycleProgress * Math.PI * 2.0);
+        float phaseCos = (float) Math.cos(cycleProgress * Math.PI * -2.0);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         drawPhaseShadow(poseStack, worldPos, SKY_DISTANCE, EARTH_ANGULAR_RADIUS_DEG, phaseCos, 32);
 
@@ -328,7 +341,7 @@ public class MoonSkyRenderer {
         // Walk the top-to-bottom edge of the disc; at each height, the
         // shadow spans from the terminator (squashed by phaseCos) out to
         // the disc edge on whichever side is dark.
-        boolean shadowOnPositiveX = phaseCos < 0.0F;
+        boolean shadowOnPositiveX = phaseCos > 0.0F;
         for (int i = 0; i <= segments; i++) {
             double t = -Math.PI / 2.0 + (i / (double) segments) * Math.PI; // -90deg..90deg
             float cy = (float) Math.sin(t);
@@ -345,7 +358,7 @@ public class MoonSkyRenderer {
     }
 
     private static void addPhaseVertex(BufferBuilder builder, Matrix4f pose, Vector4f worldPos,
-                                       Vector3f gright, Vector3f up, float radius, float u, float v, float alpha) {
+                                       Vector3f right, Vector3f up, float radius, float u, float v, float alpha) {
         float ox = (right.x() * u + up.x() * v) * radius;
         float oy = (right.y() * u + up.y() * v) * radius;
         float oz = (right.z() * u + up.z() * v) * radius;

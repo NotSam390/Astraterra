@@ -1,5 +1,6 @@
 package com.astraterra.mod.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,11 +46,14 @@ public class MoonDimensionEffects extends DimensionSpecialEffects {
 
     @Override
     public float[] getSunriseColor(float timeOfDay, float partialTicks) {
-        // Tt here still produces a dawn/dusk glow color
-        // independent of she base class's defaulkyType — that's the red-west/yellow-east horizon
-        // glow that was showing up even with vanilla sky rendering fully
-        // disabled. The moon has no atmosphere, so there's nothing to
-        // scatter light into a sunrise/sunset gradient in the first place.
+        // ...
         return null;
+    }
+
+    @Override
+    public boolean constantAmbientLight() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        return !MoonSkyRenderer.isNight(mc.level.getGameTime(), mc.getDeltaFrameTime());
     }
 }
