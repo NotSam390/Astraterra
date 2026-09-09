@@ -3,57 +3,38 @@ package com.astraterra.mod.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.phys.Vec3;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * Custom sky "effects" for the moon dimension.
- *
- * The actual black sky/fog COLOR is controlled by the biome json
- * (data/astraterra/worldgen/biome/moon.json -> effects.sky_color / fog_color),
- * not by this class — that's pure data, no code needed for the color itself.
- *
- * What this class DOES do is set skyType to NONE, which tells vanilla's
- * LevelRenderer to skip its own sky dome, sun, moon, vanilla stars, and clouds
- * entirely for this dimension. MoonSkyRenderer then draws everything from
- * scratch via RenderLevelStageEvent — custom stars, a custom sun, and Earth.
- *
- * Registered in ClientSetup and referenced by the dimension_type json via
- * "effects": "astraterra:moon".
- */
+@ParametersAreNonnullByDefault
 public class MoonDimensionEffects extends DimensionSpecialEffects {
-
     public MoonDimensionEffects() {
-        super(
-                Float.NaN,          // cloudLevel — irrelevant, we render no clouds
-                false,               // hasGround — real terrain, not an End-style void floor plane
-                SkyType.NONE,        // skyType — vanilla sky rendering fully disabled
-                false,               // forceBrightLightmap
-                false                // constantAmbientLight
-        );
+        super(Float.NaN, false, SkyType.NONE, false, false);
     }
-
     @Override
     public Vec3 getBrightnessDependentFogColor(Vec3 color, float brightness) {
-        // Biome json already supplies black fog color, and there's no atmosphere
-        // to scatter light — don't darken/tint it further based on brightness.
-        return color;
+        return new Vec3(0.02, 0.02, 0.02);
     }
+    @Override public boolean isFoggyAt(int x, int z) { return false; }
+    @Override public float[] getSunriseColor(float t, float p) { return null; }
 
     @Override
-    public boolean isFoggyAt(int x, int z) {
-        // Vacuum — no distance-based fog cutoff, full render distance visibility.
-        return false;
+    public boolean forceBrightLightmap() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        if (mc.player != null && mc.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)) return true;
+        long gt = mc.level.getGameTime();
+        double cp = (gt % 1200.0) / 1200.0;
+        float h = (float)Math.sin(Math.toRadians((float)(cp*360)-90));
+        return h > 0.2F; // was -0.05 -> now 0.2 (sun 11° up) = day stays bright longer, night darker
     }
-
-    @Override
-    public float[] getSunriseColor(float timeOfDay, float partialTicks) {
-        // ...
-        return null;
-    }
-
     @Override
     public boolean constantAmbientLight() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
-        return !MoonSkyRenderer.isNight(mc.level.getGameTime(), mc.getDeltaFrameTime());
+        if (mc.player != null && mc.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)) return true;
+        long gt = mc.level.getGameTime();
+        double cp = (gt % 1200.0) / 1200.0;
+        float h = (float)Math.sin(Math.toRadians((float)(cp*360)-90));
+        return h > 0.2F;
     }
 }
