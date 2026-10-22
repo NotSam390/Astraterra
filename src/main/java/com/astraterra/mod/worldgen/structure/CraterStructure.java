@@ -54,12 +54,6 @@ public class CraterStructure extends Structure {
                 context.chunkPos().x * 73856093L ^ context.chunkPos().z * 19349663L ^ 12345L
         );
 
-        // Nudge the crater off dead-center of its chunk. random_spread already
-        // randomizes which chunk gets picked, but every pick previously landed at
-        // exactly the same relative point (chunk middle) — that repetition reads
-        // as a grid even when the picks themselves are irregular. A few blocks of
-        // wobble here is enough to break that visual regularity without meaningfully
-        // affecting the spacing/exclusion math (which operates at chunk granularity).
         int jitterRange = 6;
         int centerX = context.chunkPos().getMiddleBlockX() + rand.nextInt(jitterRange * 2 + 1) - jitterRange;
         int centerZ = context.chunkPos().getMiddleBlockZ() + rand.nextInt(jitterRange * 2 + 1) - jitterRange;

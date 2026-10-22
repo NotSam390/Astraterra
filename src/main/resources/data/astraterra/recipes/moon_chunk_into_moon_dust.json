@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "astraterra:moon_rock_chunk"
+    }
+  },
+  "result": {
+    "item": "astraterra:moon_rock"
+  }
+}

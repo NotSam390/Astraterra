@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.astraterra.mod.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "astraterra.refmap.json",
+  "client": [
+    "LightTextureMixin",
+    "ParticleEngineMixin",
+    "ParticleAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

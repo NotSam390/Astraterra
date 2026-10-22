@@ -1,0 +1,11 @@
+{
+  "item.astraterra.moon_dust": "Moon Dust",
+  "item.astraterra.moon_rock_chunk": "Moon Rock Chunk",
+
+  "block.astraterra.moon_sand": "Moon Sand",
+  "block.astraterra.moon_rock": "Moon Rock",
+  "block.astraterra.crater_rock": "Crater Rock",
+
+  "creativetab.astraterra.astraterra_blocks": "AstraTerra Blocks",
+  "creativetab.astraterra.astraterra_items": "AstraTerra Items"
+}

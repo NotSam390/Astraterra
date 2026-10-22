@@ -1,5 +1,6 @@
 package com.astraterra.mod.worldgen.structure;
 
+import com.astraterra.mod.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
@@ -309,7 +310,7 @@ public class CraterPiece extends StructurePiece {
                         // floor material at the bottom of the carve
                         BlockPos floorPos = new BlockPos(x, target, z);
                         if (box.isInside(floorPos)) {
-                            level.setBlock(floorPos, Blocks.GRAY_CONCRETE_POWDER.defaultBlockState(), 2);
+                            level.setBlock(floorPos, ModBlocks.MOON_SAND.get().defaultBlockState(), 2);
                         }
 
                         // fill any gap between floor and solid ground below
@@ -318,7 +319,7 @@ public class CraterPiece extends StructurePiece {
                             if (box.isInside(bp)) {
                                 BlockState bs = level.getBlockState(bp);
                                 if (bs.isAir()) {
-                                    level.setBlock(bp, Blocks.STONE.defaultBlockState(), 2);
+                                    level.setBlock(bp, ModBlocks.CRATER_ROCK.get().defaultBlockState(), 2);
                                 }
                             }
                         }
@@ -327,7 +328,7 @@ public class CraterPiece extends StructurePiece {
                         for (int y = localSurface; y <= target; y++) {
                             BlockPos rimPos = new BlockPos(x, y, z);
                             if (box.isInside(rimPos) && level.getBlockState(rimPos).isAir()) {
-                                level.setBlock(rimPos, Blocks.COBBLESTONE.defaultBlockState(), 2);
+                                level.setBlock(rimPos, ModBlocks.CRATER_ROCK.get().defaultBlockState(), 2);
                             }
                         }
                     }
