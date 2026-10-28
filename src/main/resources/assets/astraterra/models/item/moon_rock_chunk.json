@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "astraterra:item/moon_rock_chunk"
+    "layer0": "astraterra:item/moon/moon_rock_chunk"
   }
 }

@@ -1,22 +1,28 @@
 package com.astraterra.mod.client;
 
 import com.astraterra.mod.Astraterra;
-import com.astraterra.mod.blocks.entity.ModBlockEntities;
-import com.astraterra.mod.menu.ModMenus;
+import com.astraterra.mod.client.renderer.OxygenStationTankRenderer;
+import com.astraterra.mod.client.screen.OxygenStationScreen;
+import com.astraterra.mod.client.sky.PlanetDimensionEffects;
+import com.astraterra.mod.planet.Planet;
+import com.astraterra.mod.planet.Planets;
+import com.astraterra.mod.registry.ModBlockEntities;
+import com.astraterra.mod.registry.ModMenus;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.slf4j.Logger;
 
 /**
- * Client-only setup. DimensionSpecialEffects.EFFECTS is private, so custom
- * sky effects can't be registered by writing to it directly — Forge exposes
+ * Client-only setup: sky effects for every planet, screens, renderers.
+ *
+ * DimensionSpecialEffects.EFFECTS is private, so custom sky effects can't be
+ * registered by writing to it directly; Forge exposes
  * RegisterDimensionSpecialEffectsEvent specifically for this instead.
  */
 @Mod.EventBusSubscriber(modid = Astraterra.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -26,9 +32,11 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void onRegisterDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
-        ResourceLocation id = new ResourceLocation(Astraterra.MODID, "moon");
-        event.register(id, new MoonDimensionEffects());
-        LOGGER.info("[ASTRATERRA_SKY] Registered custom dimension effects for {}", id);
+        for (Planet planet : Planets.all()) {
+            // Matches "effects": "astraterra:<planet>" in the dimension_type JSON.
+            event.register(planet.id(), new PlanetDimensionEffects(planet));
+            LOGGER.debug("[Astraterra] Registered dimension effects for {}", planet.id());
+        }
     }
 
     @SubscribeEvent

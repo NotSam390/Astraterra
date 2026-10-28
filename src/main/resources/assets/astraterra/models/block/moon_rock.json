@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures":{
-    "all": "astraterra:block/moon_rock"
+    "all": "astraterra:block/moon/moon_rock"
   }
 }

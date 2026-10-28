@@ -1,7 +1,8 @@
 package com.astraterra.mod.menu;
 
-import com.astraterra.mod.blocks.ModBlocks;
-import com.astraterra.mod.blocks.entity.OxygenStationBlockEntity;
+import com.astraterra.mod.block.entity.OxygenStationBlockEntity;
+import com.astraterra.mod.registry.ModBlocks;
+import com.astraterra.mod.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;

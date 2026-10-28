@@ -1,0 +1,18 @@
+{
+  "type": "astraterra:crater",
+  "biomes": "astraterra:moon",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "min_radius": 6,
+  "max_radius": 12,
+  "min_depth": 3,
+  "max_depth": 5,
+  "min_rim_height": 1,
+  "max_rim_height": 2,
+  "floor_block": {
+    "Name": "astraterra:moon_sand"
+  },
+  "rock_block": {
+    "Name": "astraterra:crater_rock"
+  }
+}
