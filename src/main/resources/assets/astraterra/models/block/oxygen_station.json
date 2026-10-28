@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "astraterra:block/oxygen_station_top",
+    "front": "astraterra:block/oxygen_station_front",
+    "side": "astraterra:block/oxygen_station_side",
+    "bottom": "astraterra:block/oxygen_station_bottom"
+  }
+}
