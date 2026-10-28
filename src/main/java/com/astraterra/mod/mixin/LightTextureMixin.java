@@ -1,7 +1,8 @@
 package com.astraterra.mod.mixin;
 
-import com.astraterra.mod.client.MoonDaylight;
-import com.astraterra.mod.client.MoonDimensionEffects;
+import com.astraterra.mod.client.sky.Daylight;
+import com.astraterra.mod.planet.Planet;
+import com.astraterra.mod.planet.Planets;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Makes Moon nights dark, using real lighting.
+ * Makes nights dark on planets with Planet.darkNights(), using real lighting.
  *
  * The lightmap is a 16x16 image: x = block light level, y = sky light level.
  * Row y = 0 is "no sky light at all", i.e. what you see lit by block light only.
@@ -38,13 +39,14 @@ public abstract class LightTextureMixin {
             method = "updateLightTexture",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/DynamicTexture;upload()V")
     )
-    private void astraterra$darkenMoonNight(float partialTick, CallbackInfo ci) {
+    private void astraterra$darkenPlanetNight(float partialTick, CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
-        if (level == null || !(level.effects() instanceof MoonDimensionEffects)) return;
+        Planet planet = Planets.get(level);
+        if (planet == null || !planet.darkNights()) return;
         if (mc.player != null && mc.player.hasEffect(MobEffects.NIGHT_VISION)) return;
 
-        float night = MoonDaylight.nightFactor(level.getSunAngle(partialTick));
+        float night = Daylight.nightFactor(level.getSunAngle(partialTick));
         if (night <= 0.001F) return;
 
         for (int x = 0; x < 16; x++) {

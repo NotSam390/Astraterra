@@ -1,8 +1,10 @@
 package com.astraterra.mod.worldgen.structure;
 
-import com.astraterra.mod.blocks.ModBlocks;
+import com.astraterra.mod.registry.ModStructures;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
@@ -14,7 +16,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class CraterPiece extends StructurePiece {
 
@@ -22,9 +23,14 @@ public class CraterPiece extends StructurePiece {
     private final int depth;
     private final int rimHeight;
     private final BlockPos center;
+    private final BlockState floorBlock;
+    private final BlockState rockBlock;
 
-    public CraterPiece(BlockPos center, int radius, int depth, int rimHeight, StructureTemplateManager manager) {
-        super(AsterraStructureTypes.CRATER_PIECE, 0, makeBoundingBox(center, radius, depth, rimHeight));
+    public CraterPiece(BlockPos center, int radius, int depth, int rimHeight,
+                       BlockState floorBlock, BlockState rockBlock) {
+        super(ModStructures.CRATER_PIECE.get(), 0, makeBoundingBox(center, radius, depth, rimHeight));
+        this.floorBlock = floorBlock;
+        this.rockBlock = rockBlock;
         this.center = center;
         this.radius = radius;
         this.depth = depth;
@@ -32,7 +38,10 @@ public class CraterPiece extends StructurePiece {
     }
 
     public CraterPiece(StructurePieceSerializationContext context, CompoundTag tag) {
-        super(AsterraStructureTypes.CRATER_PIECE, tag);
+        super(ModStructures.CRATER_PIECE.get(), tag);
+        var blocks = BuiltInRegistries.BLOCK.asLookup();
+        this.floorBlock = NbtUtils.readBlockState(blocks, tag.getCompound("floorBlock"));
+        this.rockBlock = NbtUtils.readBlockState(blocks, tag.getCompound("rockBlock"));
         this.center = new BlockPos(tag.getInt("cx"), tag.getInt("cy"), tag.getInt("cz"));
         this.radius = tag.getInt("radius");
         this.depth = tag.getInt("depth");
@@ -110,6 +119,8 @@ public class CraterPiece extends StructurePiece {
         tag.putInt("radius", radius);
         tag.putInt("depth", depth);
         tag.putInt("rimHeight", rimHeight);
+        tag.put("floorBlock", NbtUtils.writeBlockState(floorBlock));
+        tag.put("rockBlock", NbtUtils.writeBlockState(rockBlock));
     }
 
     @Override
@@ -310,7 +321,7 @@ public class CraterPiece extends StructurePiece {
                         // floor material at the bottom of the carve
                         BlockPos floorPos = new BlockPos(x, target, z);
                         if (box.isInside(floorPos)) {
-                            level.setBlock(floorPos, ModBlocks.MOON_SAND.get().defaultBlockState(), 2);
+                            level.setBlock(floorPos, floorBlock, 2);
                         }
 
                         // fill any gap between floor and solid ground below
@@ -319,7 +330,7 @@ public class CraterPiece extends StructurePiece {
                             if (box.isInside(bp)) {
                                 BlockState bs = level.getBlockState(bp);
                                 if (bs.isAir()) {
-                                    level.setBlock(bp, ModBlocks.CRATER_ROCK.get().defaultBlockState(), 2);
+                                    level.setBlock(bp, rockBlock, 2);
                                 }
                             }
                         }
@@ -328,7 +339,7 @@ public class CraterPiece extends StructurePiece {
                         for (int y = localSurface; y <= target; y++) {
                             BlockPos rimPos = new BlockPos(x, y, z);
                             if (box.isInside(rimPos) && level.getBlockState(rimPos).isAir()) {
-                                level.setBlock(rimPos, ModBlocks.CRATER_ROCK.get().defaultBlockState(), 2);
+                                level.setBlock(rimPos, rockBlock, 2);
                             }
                         }
                     }

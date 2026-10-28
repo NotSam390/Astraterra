@@ -23,3 +23,9 @@ run
 
 # Files from Forge MDK
 forge*changelog.txt
+
+# logs and generated files that shouldn't be committed
+*.log
+logs
+run-data
+changelog.txt

@@ -17,5 +17,7 @@
   "gui.astraterra.oxygen_station.suit_slot": "Suit",
 
   "creativetab.astraterra.astraterra_blocks": "AstraTerra Blocks",
-  "creativetab.astraterra.astraterra_items": "AstraTerra Items"
+  "creativetab.astraterra.astraterra_items": "AstraTerra Items",
+
+  "message.astraterra.no_oxygen": "No oxygen! Wear a full space suit with a filled chestplate."
 }

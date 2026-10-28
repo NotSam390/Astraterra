@@ -2,7 +2,9 @@ package com.astraterra.mod.worldgen.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.astraterra.mod.registry.ModStructures;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -20,7 +22,9 @@ public class CraterStructure extends Structure {
                     Codec.INT.fieldOf("min_depth").forGetter(s -> s.minDepth),
                     Codec.INT.fieldOf("max_depth").forGetter(s -> s.maxDepth),
                     Codec.INT.fieldOf("min_rim_height").forGetter(s -> s.minRimHeight),
-                    Codec.INT.fieldOf("max_rim_height").forGetter(s -> s.maxRimHeight)
+                    Codec.INT.fieldOf("max_rim_height").forGetter(s -> s.maxRimHeight),
+                    BlockState.CODEC.fieldOf("floor_block").forGetter(s -> s.floorBlock),
+                    BlockState.CODEC.fieldOf("rock_block").forGetter(s -> s.rockBlock)
             ).apply(instance, CraterStructure::new)
     );
 
@@ -30,9 +34,14 @@ public class CraterStructure extends Structure {
     private final int maxDepth;
     private final int minRimHeight;
     private final int maxRimHeight;
+    /** Covers the bottom of the crater (Moon: moon sand). */
+    private final BlockState floorBlock;
+    /** Fills under the floor and builds the rim (Moon: crater rock). */
+    private final BlockState rockBlock;
 
     public CraterStructure(StructureSettings settings, int minRadius, int maxRadius,
-                           int minDepth, int maxDepth, int minRimHeight, int maxRimHeight) {
+                           int minDepth, int maxDepth, int minRimHeight, int maxRimHeight,
+                           BlockState floorBlock, BlockState rockBlock) {
         super(settings);
         this.minRadius = minRadius;
         this.maxRadius = maxRadius;
@@ -40,6 +49,8 @@ public class CraterStructure extends Structure {
         this.maxDepth = maxDepth;
         this.minRimHeight = minRimHeight;
         this.maxRimHeight = maxRimHeight;
+        this.floorBlock = floorBlock;
+        this.rockBlock = rockBlock;
     }
 
     @Override
@@ -72,12 +83,12 @@ public class CraterStructure extends Structure {
         builder.addPiece(new CraterPiece(
                 new BlockPos(centerX, surfaceY, centerZ),
                 radius, depth, rimHeight,
-                context.structureTemplateManager()
+                floorBlock, rockBlock
         ));
     }
 
     @Override
     public StructureType<?> type() {
-        return AsterraStructureTypes.CRATER;
+        return ModStructures.CRATER.get();
     }
 }

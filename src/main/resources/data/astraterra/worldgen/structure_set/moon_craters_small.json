@@ -1,8 +1,8 @@
 {
   "structures": [
-    {"structure": "astraterra:crater_small", "weight": 40},
-    {"structure": "astraterra:crater_medium", "weight": 30},
-    {"structure": "astraterra:crater_large", "weight": 20}
+    {"structure": "astraterra:moon/crater_small", "weight": 40},
+    {"structure": "astraterra:moon/crater_medium", "weight": 30},
+    {"structure": "astraterra:moon/crater_large", "weight": 20}
   ],
   "placement": {
     "type": "minecraft:random_spread",
