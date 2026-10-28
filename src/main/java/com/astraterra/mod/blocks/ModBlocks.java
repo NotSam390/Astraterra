@@ -14,7 +14,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.rmi.registry.Registry;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -29,6 +28,13 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> CRATER_ROCK = registerBlock("crater_rock",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE).sound(SoundType.STONE)));
+
+    // Oxygen station multiblock: base (bottom) + tank (top)
+    public static final RegistryObject<Block> OXYGEN_STATION = registerBlock("oxygen_station",
+            () -> new OxygenStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion()));
+
+    public static final RegistryObject<Block> OXYGEN_STATION_TANK = registerBlock("oxygen_station_tank",
+            () -> new OxygenStationTankBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion()));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

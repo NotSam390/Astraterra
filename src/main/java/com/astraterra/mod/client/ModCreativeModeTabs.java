@@ -19,12 +19,14 @@ public class ModCreativeModeTabs {
 
     public static final RegistryObject<CreativeModeTab> AstraTerra_Blocks = CREATIVE_MODE_TABS.register("astraterra_blocks_tab",
             () -> CreativeModeTab.builder()
-                    .icon(() -> new ItemStack(Items.STONE))
+                    .icon(() -> new ItemStack(ModBlocks.OXYGEN_STATION.get()))
                     .title(Component.translatable("creativetab.astraterra.astraterra_blocks"))
                     .displayItems((parameters, output) -> {
                         output.accept(ModBlocks.MOON_SAND.get());
                         output.accept(ModBlocks.MOON_ROCK.get());
                         output.accept(ModBlocks.CRATER_ROCK.get());
+                        output.accept(ModBlocks.OXYGEN_STATION.get());
+                        output.accept(ModBlocks.OXYGEN_STATION_TANK.get());
                     })
                     .build());
 
@@ -36,6 +38,10 @@ public class ModCreativeModeTabs {
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.MOON_DUST.get());
                         output.accept(ModItems.MOON_ROCK_CHUNK.get());
+                        output.accept(ModItems.HELMET.get());
+                        output.accept(ModItems.CHESTPLATE.get());
+                        output.accept(ModItems.LEGGINGS.get());
+                        output.accept(ModItems.BOOTS.get());
                     })
                     .build());
 

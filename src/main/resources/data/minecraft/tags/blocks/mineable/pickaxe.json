@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "astraterra:moon_rock",
-    "astraterra:crater_rock"
+    "astraterra:crater_rock",
+    "astraterra:oxygen_station",
+    "astraterra:oxygen_station_tank"
   ]
 }

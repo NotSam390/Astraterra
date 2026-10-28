@@ -1,7 +1,9 @@
 package com.astraterra.mod;
 
 import com.astraterra.mod.blocks.ModBlocks;
+import com.astraterra.mod.blocks.entity.ModBlockEntities;
 import com.astraterra.mod.client.ModCreativeModeTabs;
+import com.astraterra.mod.menu.ModMenus;
 import com.astraterra.mod.items.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -29,6 +31,8 @@ public class Astraterra
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
+        ModMenus.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
 
